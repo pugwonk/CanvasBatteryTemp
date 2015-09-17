@@ -1,18 +1,17 @@
-package com.betaminus.batttemp;
+package com.betaminus.battinfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.util.Log;
 
-import com.betaminus.batttemp.R;
+import com.betaminus.battinfo.R;
 import com.pennas.pebblecanvas.plugin.PebbleCanvasPlugin;
 
-public class BattTempPlugin extends PebbleCanvasPlugin {
+public class BattInfoPlugin extends PebbleCanvasPlugin {
 	public static final String LOG_TAG = "CANV_BATTTEMP";
 	
 	public static final int BATTTEMP_ID = 1; // Needs to be unique only within this plugin package
@@ -23,7 +22,7 @@ public class BattTempPlugin extends PebbleCanvasPlugin {
 	
 	private static float currentTemp = -999;
 	
-	public static BattTempReceiver current_state;
+	public static BattInfoReceiver current_state;
 	
 	// send plugin metadata to Canvas when requested
 	@Override
@@ -57,7 +56,7 @@ public class BattTempPlugin extends PebbleCanvasPlugin {
 		format_mask = format_mask.replace("#", ""); // was coming back as '%C##', no idea why
 		if (def_id == BATTTEMP_ID) {
 			// Start service if it's not running. It'll only start once so can call multiple times
-			Intent tickerService = new Intent(context, BattTempService.class);
+			Intent tickerService = new Intent(context, BattInfoService.class);
 			context.startService(tickerService);
 			if (currentTemp == -999)
 				return "...";

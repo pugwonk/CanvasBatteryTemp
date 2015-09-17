@@ -1,7 +1,7 @@
 <resources>
 
-    <string name="app_name">Canvas for Pebble: Battery Temperature Plugin</string>
-    <string name="plugin_name">Battery Temperature</string>
+    <string name="app_name">Canvas for Pebble: Phone Battery Info Plugin</string>
+    <string name="plugin_name">Phone Battery Info</string>
 
     <string-array name="format_mask_descs">
         <item>Celsius</item>

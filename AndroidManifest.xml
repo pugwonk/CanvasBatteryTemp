@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.betaminus.batttemp"
+    package="com.betaminus.battinfo"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -13,7 +13,7 @@
         android:icon="@drawable/canvas_icon"
         android:label="@string/app_name" >
         <receiver
-            android:name="com.betaminus.batttemp.BattTempPlugin"
+            android:name="com.betaminus.battinfo.BattInfoPlugin"
             android:exported="true" >
             <intent-filter>
                 <action android:name="com.pennas.pebblecanvas.plugin.REQUEST_DEFINITIONS" />
@@ -21,14 +21,14 @@
             </intent-filter>
         </receiver>
         <receiver
-            android:name="com.betaminus.batttemp.BattTempReceiver"
+            android:name="com.betaminus.battinfo.BattInfoReceiver"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
                 <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
             </intent-filter>
         </receiver>
-        <service android:name="com.betaminus.batttemp.BattTempService">
+        <service android:name="com.betaminus.battinfo.BattInfoService">
         </service>
     </application>
 
