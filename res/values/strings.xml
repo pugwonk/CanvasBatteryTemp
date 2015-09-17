@@ -4,8 +4,9 @@
     <string name="plugin_name">Phone Battery Info</string>
 
     <string-array name="format_mask_descs">
-        <item>Celsius</item>
-        <item>Fahrenheit</item>
-    </string-array>
+        <item>Temp Celsius</item>
+        <item>Temp Fahrenheit</item>
+        <item>Current</item>
+        </string-array>
 
 </resources>

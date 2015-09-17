@@ -16,11 +16,13 @@ public class BattInfoPlugin extends PebbleCanvasPlugin {
 	
 	public static final int BATTTEMP_ID = 1; // Needs to be unique only within this plugin package
 	
-	private static final String[] MASKS = { "%C", "%F" };
+	private static final String[] MASKS = { "%C", "%F", "%I" };
 	private static final int MASK_C = 0;
 	private static final int MASK_F = 1;
+	private static final int MASK_I = 2;
 	
 	private static float currentTemp = -999;
+	private static long currentCurrent = 0;
 	
 	public static BattInfoReceiver current_state;
 	
@@ -41,6 +43,7 @@ public class BattInfoPlugin extends PebbleCanvasPlugin {
 		ArrayList<String> examples = new ArrayList<String>();
 		examples.add("30°");
 		examples.add("100°");
+		examples.add("dunno");
 		tplug.format_mask_examples = examples;
 		tplug.format_masks = new ArrayList<String>(Arrays.asList(MASKS));
 		tplug.default_format_string = "%C";
@@ -58,15 +61,13 @@ public class BattInfoPlugin extends PebbleCanvasPlugin {
 			// Start service if it's not running. It'll only start once so can call multiple times
 			Intent tickerService = new Intent(context, BattInfoService.class);
 			context.startService(tickerService);
-			if (currentTemp == -999)
-				return "...";
-			else {
-				// which format to return current value for?
-				if (format_mask.equals(MASKS[MASK_F])) {
-					return String.valueOf((int)(currentTemp * 9/5 + 32)) + "°";
-				} else if (format_mask.equals(MASKS[MASK_C])) {
-					return String.valueOf((int)currentTemp) + "°";
-				}
+			// which format to return current value for?
+			if (format_mask.equals(MASKS[MASK_F])) {
+				return ((currentTemp == -999) ? "..." : String.valueOf((int)(currentTemp * 9/5 + 32)) + "°");
+			} else if (format_mask.equals(MASKS[MASK_C])) {
+				return ((currentTemp == -999) ? "..." : String.valueOf((int)(currentTemp)) + "°");
+			} else if (format_mask.equals(MASKS[MASK_I])) {
+				return String.valueOf((int)(currentCurrent));
 			}
 		}
 		Log.i(LOG_TAG, "no matching mask found");
@@ -79,9 +80,15 @@ public class BattInfoPlugin extends PebbleCanvasPlugin {
 		return null;
 	}
 
-	public static void stateChanged(int temp, Context context) {
+	public static void tempChanged(int temp, Context context) {
 		Log.i(LOG_TAG, "Retrieving and returning current battery temperature (" + String.valueOf(temp) + ")");
         currentTemp = temp/10;
+        notify_canvas_updates_available(BATTTEMP_ID, context);
+    }
+
+	public static void currentChanged(long current, Context context) {
+		Log.i(LOG_TAG, "Retrieving and returning current battery current (" + String.valueOf(current) + ")");
+        currentCurrent = current;
         notify_canvas_updates_available(BATTTEMP_ID, context);
     }
 }
