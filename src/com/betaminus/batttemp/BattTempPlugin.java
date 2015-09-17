@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.os.BatteryManager;
 import android.util.Log;
 
 import com.betaminus.batttemp.R;
@@ -22,11 +21,15 @@ public class BattTempPlugin extends PebbleCanvasPlugin {
 	private static final int MASK_C = 0;
 	private static final int MASK_F = 1;
 	
+	private static float currentTemp = -999;
+	
+	public static BattTempReceiver current_state;
+	
 	// send plugin metadata to Canvas when requested
 	@Override
 	protected ArrayList<PluginDefinition> get_plugin_definitions(Context context) {
 		Log.i(LOG_TAG, "get_plugin_definitions");
-		
+				
 		// create a list of plugins provided by this app
 		ArrayList<PluginDefinition> plugins = new ArrayList<PluginDefinition>();
 		
@@ -37,8 +40,8 @@ public class BattTempPlugin extends PebbleCanvasPlugin {
 		tplug.format_mask_descriptions = new ArrayList<String>(Arrays.asList(context.getResources().getStringArray(R.array.format_mask_descs)));
 		// populate example content for each field (optional) to be display in the format mask editor
 		ArrayList<String> examples = new ArrayList<String>();
-		examples.add("35°");
-		examples.add("150°");
+		examples.add("30°");
+		examples.add("100°");
 		tplug.format_mask_examples = examples;
 		tplug.format_masks = new ArrayList<String>(Arrays.asList(MASKS));
 		tplug.default_format_string = "%C";
@@ -53,14 +56,18 @@ public class BattTempPlugin extends PebbleCanvasPlugin {
 		Log.i(LOG_TAG, "get_format_mask_value def_id = " + def_id + " format_mask = '" + format_mask + "'");
 		format_mask = format_mask.replace("#", ""); // was coming back as '%C##', no idea why
 		if (def_id == BATTTEMP_ID) {
-			Log.i(LOG_TAG, "Retrieving and returning current battery temperature");
-			Intent intent = context.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));    
-	        float temp  = ((float) intent.getIntExtra(BatteryManager.EXTRA_TEMPERATURE,0)) / 10;
-			// which format to return current value for?
-			if (format_mask.equals(MASKS[MASK_F])) {
-				return String.valueOf(temp * 9/5 + 32) + "°F";
-			} else if (format_mask.equals(MASKS[MASK_C])) {
-				return String.valueOf(temp) + "°C";
+			// Start service if it's not running. It'll only start once so can call multiple times
+			Intent tickerService = new Intent(context, BattTempService.class);
+			context.startService(tickerService);
+			if (currentTemp == -999)
+				return "...";
+			else {
+				// which format to return current value for?
+				if (format_mask.equals(MASKS[MASK_F])) {
+					return String.valueOf((int)(currentTemp * 9/5 + 32)) + "°";
+				} else if (format_mask.equals(MASKS[MASK_C])) {
+					return String.valueOf((int)currentTemp) + "°";
+				}
 			}
 		}
 		Log.i(LOG_TAG, "no matching mask found");
@@ -73,4 +80,9 @@ public class BattTempPlugin extends PebbleCanvasPlugin {
 		return null;
 	}
 
+	public static void stateChanged(int temp, Context context) {
+		Log.i(LOG_TAG, "Retrieving and returning current battery temperature (" + String.valueOf(temp) + ")");
+        currentTemp = temp/10;
+        notify_canvas_updates_available(BATTTEMP_ID, context);
+    }
 }

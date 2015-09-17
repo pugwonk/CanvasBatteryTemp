@@ -28,6 +28,8 @@
                 <action android:name="android.intent.action.ACTION_POWER_DISCONNECTED" />
             </intent-filter>
         </receiver>
+        <service android:name="com.betaminus.batttemp.BattTempService">
+        </service>
     </application>
 
 </manifest>
